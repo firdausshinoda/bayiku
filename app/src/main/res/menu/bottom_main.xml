@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_round_home_24"
+        android:title="HOME" />
+    <item
+        android:id="@+id/navigation_web"
+        android:icon="@drawable/ic_round_web_24"
+        android:title="WEB" />
+    <item
+        android:id="@+id/navigation_informasi"
+        android:icon="@drawable/ic_outline_info_24"
+        android:title="INFORMASI" />
+
+</menu>
