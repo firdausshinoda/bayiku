@@ -6,6 +6,7 @@
         android:icon="@drawable/ic_round_autorenew_24"
         android:iconTint="@color/white"
         android:title="Searching..."
+        android:visible="false"
         app:showAsAction="always|withText">
     </item>
 </menu>

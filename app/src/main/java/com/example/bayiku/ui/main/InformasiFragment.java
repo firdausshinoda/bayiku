@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.bayiku.R;
@@ -27,13 +28,14 @@ import butterknife.OnClick;
 public class InformasiFragment extends Fragment {
     private Context context;
     private String nama_device, mac_address;
-    private boolean stt_koneksi = false;
+    private boolean stt_koneksi = false, stt_loader = false;
 
     @BindView(R.id.tv_mac_address) TextView tv_mac_address;
     @BindView(R.id.tv_nama) TextView tv_nama;
     @BindView(R.id.tv_stt_konek) TextView tv_stt_konek;
     @BindView(R.id.btn_unbind) Button btn_unbind;
     @BindView(R.id.btn_cari) Button btn_cari;
+    @BindView(R.id.progress_cari) ProgressBar progress_cari;
 
     public InformasiFragment() {
         // Required empty public constructor
@@ -52,6 +54,7 @@ public class InformasiFragment extends Fragment {
         context = getContext();
 
         LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver, new IntentFilter("BcKoneksi"));
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiverSearch, new IntentFilter("BcSearch"));
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -60,21 +63,40 @@ public class InformasiFragment extends Fragment {
             nama_device = intent.getStringExtra("nama_device");
             mac_address = intent.getStringExtra("mac_address");
             stt_koneksi = intent.getBooleanExtra("stt_koneksi", false);
+            stt_loader = false;
+            setSearch();
+        }
+    };
 
-            tv_stt_konek.setText(stt_koneksi ? "TERKONEKSI" : "TERPUTUS");
-            if (stt_koneksi) {
+    private BroadcastReceiver mMessageReceiverSearch = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            stt_loader = intent.getBooleanExtra("stt_cari",false);
+            setSearch();
+        }
+    };
+
+    private void setSearch() {
+        tv_stt_konek.setText(stt_koneksi ? "TERKONEKSI" : "TERPUTUS");
+        if (stt_koneksi) {
+            btn_cari.setVisibility(View.GONE);
+            btn_unbind.setVisibility(View.VISIBLE);
+            tv_mac_address.setText(mac_address);
+            tv_nama.setText(nama_device);
+        } else {
+            tv_mac_address.setText("");
+            tv_nama.setText("");
+            if (stt_loader) {
                 btn_cari.setVisibility(View.GONE);
-                btn_unbind.setVisibility(View.VISIBLE);
-                tv_mac_address.setText(mac_address);
-                tv_nama.setText(nama_device);
+                btn_unbind.setVisibility(View.GONE);
+                progress_cari.setVisibility(View.VISIBLE);
             } else {
                 btn_cari.setVisibility(View.VISIBLE);
                 btn_unbind.setVisibility(View.GONE);
-                tv_mac_address.setText("");
-                tv_nama.setText("");
+                progress_cari.setVisibility(View.GONE);
             }
         }
-    };
+    }
 
     @OnClick(R.id.btn_cari) void OnClick_btn_cari() {
         ((MainActivity)getActivity()).searchBLE();
@@ -90,18 +112,7 @@ public class InformasiFragment extends Fragment {
         mac_address = ((MainActivity)getActivity()).getKoneksiAddress();
         nama_device = ((MainActivity)getActivity()).getKoneksiNama();
         stt_koneksi = ((MainActivity)getActivity()).getKoneksiStatus();
-
-        tv_stt_konek.setText(stt_koneksi ? "TERKONEKSI" : "TERPUTUS");
-        if (stt_koneksi) {
-            btn_cari.setVisibility(View.GONE);
-            btn_unbind.setVisibility(View.VISIBLE);
-            tv_mac_address.setText(mac_address);
-            tv_nama.setText(nama_device);
-        } else {
-            btn_cari.setVisibility(View.VISIBLE);
-            btn_unbind.setVisibility(View.GONE);
-            tv_mac_address.setText("");
-            tv_nama.setText("");
-        }
+        stt_loader = ((MainActivity)getActivity()).getSttCari();
+        setSearch();
     }
 }

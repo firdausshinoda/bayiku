@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     private boolean mScanning;
     private Handler mHandler;
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 20000;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner = null;
     private BluetoothManager bluetoothManager = null;
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     private ServiceInfo curService;
 
     private String macAddress = null , deviceName = null;
-    private boolean stt_koneksi = false;
+    private boolean stt_koneksi = false, stt_cari = false;
     private Menu menu;
     private Context context;
     private HomeFragment homeFragment;
@@ -85,10 +85,8 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     private InformasiFragment informasiFragment;
     private FragmentManager fragmentManager;
 
-    @BindView(R.id.nav_view)
-    BottomNavigationView nav_view;
-    @BindView(R.id.cardNavBottom)
-    CardView cardNavBottom;
+    @BindView(R.id.nav_view) BottomNavigationView nav_view;
+    @BindView(R.id.cardNavBottom) CardView cardNavBottom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -296,6 +294,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         if (enable) {
             mHandler.postDelayed(() -> {
                 mScanning = false;
+                stt_cari = false;
+                sendBroadcastSearch(false);
+                Log.d("CATATAN","CARI => SELESAI");
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                     permission();
                 }
@@ -303,9 +304,14 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             }, SCAN_PERIOD);
 
             mScanning = true;
+            stt_cari = true;
+            Log.d("CATATAN","CARI => OK");
+            sendBroadcastSearch(true);
             bluetoothLeScanner.startScan(leScanCallback);
         } else {
             mScanning = false;
+            stt_cari = false;
+            sendBroadcastSearch(false);
             bluetoothLeScanner.stopScan(leScanCallback);
         }
     }
@@ -395,6 +401,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     public boolean getKoneksiStatus() {
         return stt_koneksi;
     }
+    public boolean getSttCari() { return stt_cari; }
 
     public String getKoneksiNama() {
         return deviceName;
@@ -409,6 +416,11 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         pushNotification.putExtra("nama_device", deviceName);
         pushNotification.putExtra("mac_address", macAddress);
         pushNotification.putExtra("stt_koneksi", stt);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
+    }
+    private void sendBroadcastSearch(boolean stt) {
+        Intent pushNotification = new Intent("BcSearch");
+        pushNotification.putExtra("stt_cari", stt);
         LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
     }
 

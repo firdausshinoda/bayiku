@@ -159,6 +159,13 @@
                         app:backgroundTint="@color/primary"
                         app:cornerRadius="15dp"
                         app:elevation="10dp"/>
+                    <ProgressBar
+                        android:id="@+id/progress_cari"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:visibility="visible"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/primary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
