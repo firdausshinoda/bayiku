@@ -117,10 +117,11 @@
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:textColor="@color/black"
-                                    android:completionThreshold="2"
+                                    android:maxLines="1"
                                     android:hint="Cari..."
+                                    android:inputType="text"
                                     android:background="@null"
+                                    android:textColor="@color/black"
                                     android:textAppearance="?android:textAppearanceSmall"/>
                                 <ProgressBar
                                     android:id="@+id/progress_cari"

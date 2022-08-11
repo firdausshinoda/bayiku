@@ -15,6 +15,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Config {
     public static final String BASE_URL = "https://tester.homebeauty27.online/api/";
+    public static final String BASE_URL_WEB = "https://tester.homebeauty27.online/";
+    public static final String BASE_URL_WEB_HOST = "tester.homebeauty27.online";
 
     public static Retrofit getRetrofit(String url) {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()

@@ -16,6 +16,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.example.bayiku.R;
+import com.example.bayiku.utils.Config;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,7 +39,7 @@ public class WebFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
 
-        webView.loadUrl("https://tester.homebeauty27.online/");
+        webView.loadUrl(Config.BASE_URL_WEB);
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webView.setWebViewClient(new MyWebViewClient());
@@ -46,7 +47,7 @@ public class WebFragment extends Fragment {
     class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if ("tester.homebeauty27.online".equals(Uri.parse(url).getHost())) {
+            if (Config.BASE_URL_WEB_HOST.equals(Uri.parse(url).getHost())) {
                 return false;
             }
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

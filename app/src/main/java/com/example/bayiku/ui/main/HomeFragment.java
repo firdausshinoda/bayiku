@@ -69,6 +69,7 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
     private ArrayList<String> listNama = new ArrayList<>();
     private ArrayAdapter<String> cariAdapter;
     private String id, posyandu_id, jk, tgl_lahir, berat = "9", tinggi = "10", keterangan, berat_satuan, tinggi_satuan;
+    private boolean stt_show = false;
 
     @BindView(R.id.tv_berat) TextView tv_berat;
     @BindView(R.id.tv_tinggi) TextView tv_tinggi;
@@ -98,6 +99,7 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
 
         at_cari.addTextChangedListener(this);
         at_cari.setOnItemClickListener(this);
+        at_cari.setThreshold(2);
 
         list_posyandu.add("Kenanga");
         list_posyandu.add("Bougenfil");
@@ -131,22 +133,21 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        if (charSequence.length() > 2) {
-            searchName(charSequence.toString());
-        }
+
     }
 
     @Override
     public void afterTextChanged(Editable editable) {
-
+        if (editable.toString().length() > 1) {
+            searchName(editable.toString());
+        }
     }
 
     private void searchName(String cari) {
         progress_cari.setVisibility(View.VISIBLE);
-
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
-        builder.addFormDataPart("nama",cari);
+        builder.addFormDataPart("nama",cari.split("\n")[0]);
         builder.addFormDataPart("posyandu_id",posyandu_id);
         MultipartBody requestBody = builder.build();
 
@@ -157,33 +158,57 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 progress_cari.setVisibility(View.GONE);
                 try {
-                    if (response.body() != null) {
-                        String json  = response.body().string();
-                        if (!json.equals("null")){
-                            JSONObject jsonObj = new JSONObject(json);
-                            String status = jsonObj.getString("status");
-                            if (status.equals("success")){
-                                JSONObject jsonObject = jsonObj.getJSONObject("result");
-                                JSONArray jsonObjJSONArray = jsonObject.getJSONArray("datas");
-                                listNama.clear();
-                                itemBayis.clear();
-                                for(int i=0; i < jsonObjJSONArray.length(); i++) {
-                                    JSONObject c = jsonObjJSONArray.getJSONObject(i);
-                                    String id = c.getString("id");
-                                    String nama = c.getString("nama");
-                                    String tanggal_lahir = c.getString("tanggal_lahir");
-                                    String jk = c.getString("jk");
-                                    listNama.add(nama+" ("+Config.changeTgl(tanggal_lahir)+")");
-                                    itemBayis.add(new ItemBayi(id, nama, tanggal_lahir, jk));
+                    if (response.isSuccessful()) {
+                        if (response.body() != null) {
+                            String json  = response.body().string();
+                            if (!json.equals("null")){
+                                JSONObject jsonObj = new JSONObject(json);
+                                String status = jsonObj.getString("status");
+                                String message = jsonObj.getString("message");
+                                if (status.equals("success")){
+                                    JSONObject jsonObject = jsonObj.getJSONObject("result");
+                                    JSONArray jsonObjJSONArray = jsonObject.getJSONArray("datas");
+                                    listNama.clear();
+                                    itemBayis.clear();
+                                    for(int i=0; i < jsonObjJSONArray.length(); i++) {
+                                        JSONObject c = jsonObjJSONArray.getJSONObject(i);
+                                        String id = c.getString("id");
+                                        String nama = c.getString("nama");
+                                        String tanggal_lahir = c.getString("tanggal_lahir");
+                                        String jk = c.getString("jk");
+                                        listNama.add(nama+"\n"+Config.setTglIndo(tanggal_lahir));
+                                        itemBayis.add(new ItemBayi(id, nama, tanggal_lahir, jk));
+                                    }
+                                    cariAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, listNama);
+                                    at_cari.setAdapter(cariAdapter);
+                                } else if (status.equals("warning")){
+                                    DialogAlertSuccErrInfo.newInstance("DANGER","Peringatan", message).show(getChildFragmentManager(),null);
+                                } else {
+                                    DialogAlertSuccErrInfo.newInstance("DANGER","Gagal", message).show(getChildFragmentManager(),null);
                                 }
-                                cariAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, listNama);
-                                at_cari.setAdapter(cariAdapter);
-                                at_cari.setThreshold(2);
-                            } else {
-                                Toast.makeText(getContext(),"TERJADI KESALAHAN PADA SERVER", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    } else {
+                        if (response.errorBody() != null) {
+                            String json  = response.errorBody().string();
+                            if (!json.equals("null")){
+                                JSONObject jsonObj = new JSONObject(json);
+                                String status = jsonObj.getString("status");
+                                String message = jsonObj.getString("message");
+                                if (status.equals("warning")){
+                                    if (!stt_show) {
+                                        DialogAlertSuccErrInfo dialog = DialogAlertSuccErrInfo.newInstance("DANGER","Peringatan", message);
+                                        dialog.setPositiveButton(() -> stt_show = false);
+                                        dialog.show(getChildFragmentManager(),null);
+                                        stt_show = true;
+                                    }
+                                } else {
+                                    DialogAlertSuccErrInfo.newInstance("DANGER","Peringatan", message).show(getChildFragmentManager(),null);
+                                }
                             }
                         }
                     }
+
                 } catch (IOException | JSONException e) {
                     Toast.makeText(getContext(),"TIDAK DAPAT MENGAMBIL DATA", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
@@ -215,12 +240,12 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
         View focusView = null;
 
         if (TextUtils.isEmpty(jk)) {
-            tv_jk.setError("Silahkan pilih nama...");
+            tv_jk.setError("Silahkan cari terlebih dahulu...");
             focusView = tv_jk;
             cancel = true;
         }
         if (TextUtils.isEmpty(tgl_lahir)) {
-            tv_tgl_lahir.setError("Silahkan pilih nama...");
+            tv_tgl_lahir.setError("Silahkan cari terlebih dahulu...");
             focusView = tv_tgl_lahir;
             cancel = true;
         }
@@ -285,21 +310,20 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
                             dialogAlertSuccErrInfo.show(getChildFragmentManager(),null);
                             dialogAlertSuccErrInfo.setPositiveButton(() -> {
                                 at_cari.setText("");
-                                tv_jk.setText("");
-                                tv_tgl_lahir.setText("");
-                                tv_berat.setText("");
-                                tv_tinggi.setText("");
-                                et_keterangan.setText("");
+                                clearForm();
                             });
-                        } else if (status.equals("0")){
+                        } else if (status.equals("warning")){
+                            clearForm();
                             DialogAlertSuccErrInfo.newInstance("DANGER","Peringatan", message).show(getChildFragmentManager(),null);
                         } else {
                             DialogAlertSuccErrInfo.newInstance("DANGER","Gagal", message).show(getChildFragmentManager(),null);
+                            clearForm();
                         }
                     }
                 } catch (IOException | JSONException e) {
                     DialogAlertSuccErrInfo.newInstance("DANGER","Gagal", "Terjadi kesalahan pada server.").show(getChildFragmentManager(),null);
                     e.printStackTrace();
+                    clearForm();
                 }
             }
 
@@ -307,8 +331,17 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 pDialog.dismiss();
                 DialogAlertSuccErrInfo.newInstance("DANGER","Gagal", "Tidak dapat mengirim data.").show(getChildFragmentManager(),null);
+                clearForm();
             }
         });
+    }
+
+    private void clearForm() {
+        tv_jk.setText("");
+        tv_tgl_lahir.setText("");
+        tv_berat.setText("");
+        tv_tinggi.setText("");
+        et_keterangan.setText("");
     }
 
     @Override
@@ -323,6 +356,7 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        at_cari.setText(itemBayis.get(i).getNama());
         tv_tgl_lahir.setText(Config.setTglIndo(itemBayis.get(i).getTgl_lahir()));
         tv_jk.setText(itemBayis.get(i).getJk().toUpperCase(Locale.ROOT));
         id = itemBayis.get(i).getId();
