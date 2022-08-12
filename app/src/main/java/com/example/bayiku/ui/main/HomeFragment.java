@@ -149,6 +149,7 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
     }
 
     private void searchName(String cari) {
+        clearForm();
         progress_cari.setVisibility(View.VISIBLE);
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
@@ -187,8 +188,10 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
                                     cariAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, listNama);
                                     at_cari.setAdapter(cariAdapter);
                                 } else if (status.equals("warning")){
+                                    clearForm();
                                     DialogAlertSuccErrInfo.newInstance("DANGER","Peringatan", message).show(getChildFragmentManager(),null);
                                 } else {
+                                    clearForm();
                                     DialogAlertSuccErrInfo.newInstance("DANGER","Gagal", message).show(getChildFragmentManager(),null);
                                 }
                             }
@@ -211,10 +214,12 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
                                     DialogAlertSuccErrInfo.newInstance("DANGER","Peringatan", message).show(getChildFragmentManager(),null);
                                 }
                             }
+                            clearForm();
                         }
                     }
 
                 } catch (IOException | JSONException e) {
+                    clearForm();
                     Toast.makeText(getContext(),"TIDAK DAPAT MENGAMBIL DATA", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
