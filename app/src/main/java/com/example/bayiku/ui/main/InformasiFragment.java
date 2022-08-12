@@ -8,6 +8,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -36,6 +38,7 @@ public class InformasiFragment extends Fragment {
     @BindView(R.id.btn_unbind) Button btn_unbind;
     @BindView(R.id.btn_cari) Button btn_cari;
     @BindView(R.id.progress_cari) ProgressBar progress_cari;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     public InformasiFragment() {
         // Required empty public constructor
@@ -52,6 +55,9 @@ public class InformasiFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
         context = getContext();
+
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Bayiku");
 
         LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver, new IntentFilter("BcKoneksi"));
         LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiverSearch, new IntentFilter("BcSearch"));

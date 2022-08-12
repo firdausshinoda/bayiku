@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
     private String macAddress = null , deviceName = null;
     private boolean stt_koneksi = false, stt_cari = false;
-    private Menu menu;
     private Context context;
     private HomeFragment homeFragment;
     private WebFragment webFragment;
@@ -93,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
 
         ButterKnife.bind(this);
         context = this;
@@ -146,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     }
 
     private void initVitew() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         fragmentManager = getSupportFragmentManager();
         fragmentManager.addOnBackStackChangedListener(this);
         replaceFragment(homeFragment);
@@ -210,18 +207,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 .init(this.getApplication());
         bleDevice = null;
         scaneBLT();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
-        this.menu = menu;
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -373,16 +358,10 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         if (bleDevice.connected || bleDevice.connecting || connected) {
             Log.d("CATATAN","KONEKSI SUKSES");
             stt_koneksi = true;
-            if (this.menu.getItem(0) != null) {
-                this.menu.getItem(0).setIcon(ContextCompat.getDrawable(this,R.drawable.ic_round_bluetooth_connected_24));
-            }
             BleManager.getInstance().notify(bleDevice, "0000fff0-0000-1000-8000-00805f9b34fb", "0000fff1-0000-1000-8000-00805f9b34fb", notifyCallback);
         } else {
             stt_koneksi = false;
             Log.d("CATATAN","KONEKSI TIDAK");
-            if (this.menu.getItem(0) != null) {
-                this.menu.getItem(0).setIcon(ContextCompat.getDrawable(this,R.drawable.ic_round_autorenew_24));
-            }
             scaneBLT();
         }
         sendBroadcast(connected);

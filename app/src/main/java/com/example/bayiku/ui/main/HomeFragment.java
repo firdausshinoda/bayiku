@@ -12,6 +12,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -79,6 +81,7 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
     @BindView(R.id.at_cari) AutoCompleteTextView at_cari;
     @BindView(R.id.sp_posyandu) Spinner sp_posyandu;
     @BindView(R.id.progress_cari) ProgressBar progress_cari;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -96,6 +99,8 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
         ButterKnife.bind(this, view);
         context = getContext();
 
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Bayiku");
 
         at_cari.addTextChangedListener(this);
         at_cari.setOnItemClickListener(this);
