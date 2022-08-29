@@ -36,6 +36,7 @@ import com.example.bayiku.easyble.Logger;
 import com.example.bayiku.easyble.gatt.bean.ServiceInfo;
 import com.example.bayiku.easyble.gatt.callback.BleConnectCallback;
 import com.example.bayiku.easyble.gatt.callback.BleNotifyCallback;
+import com.example.bayiku.easyble.scan.BleScanCallback;
 import com.example.bayiku.ui.main.HomeFragment;
 import com.example.bayiku.ui.main.InformasiFragment;
 import com.example.bayiku.ui.main.WebFragment;
@@ -140,7 +141,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
                 token.continuePermissionRequest();
             }
-        }).withErrorListener(error -> Toast.makeText(context, "Error occurred! ", Toast.LENGTH_SHORT).show()).onSameThread().check();
+        })
+//                .withErrorListener(error -> Toast.makeText(context, "", Toast.LENGTH_SHORT).show())
+                .onSameThread().check();
     }
 
     private void initVitew() {
@@ -285,8 +288,10 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                     permission();
                 }
-                bluetoothLeScanner.stopScan(leScanCallback);
+                scanLeDevice(false);
+//                bluetoothLeScanner.stopScan(leScanCallback);
             }, SCAN_PERIOD);
+
 
             mScanning = true;
             stt_cari = true;
@@ -294,10 +299,11 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             sendBroadcastSearch(true);
             bluetoothLeScanner.startScan(leScanCallback);
         } else {
+            Log.d("CATATAN","CARI => SELESAI");
             mScanning = false;
             stt_cari = false;
             sendBroadcastSearch(false);
-            bluetoothLeScanner.stopScan(leScanCallback);
+//            bluetoothLeScanner.stopScan(leScanCallback);
         }
     }
 
@@ -312,7 +318,8 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            final BleAdvertisedData badata = BleUtil.parseAdertisedData(result.getScanRecord().getBytes());
+            final BleAdvertisedData badata = BleUtil.parseAdertisedData(result.getScanRecord()
+                    .getBytes());
             String namaDevice = result.getDevice().getName();
             if( namaDevice == null ){
                 namaDevice = badata.getName();
@@ -355,14 +362,22 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     };
 
     private void updateConnectionStateUi(boolean connected) {
-        if (bleDevice.connected || bleDevice.connecting || connected) {
-            Log.d("CATATAN","KONEKSI SUKSES");
-            stt_koneksi = true;
-            BleManager.getInstance().notify(bleDevice, "0000fff0-0000-1000-8000-00805f9b34fb", "0000fff1-0000-1000-8000-00805f9b34fb", notifyCallback);
-        } else {
+        if (bleDevice == null) {
             stt_koneksi = false;
             Log.d("CATATAN","KONEKSI TIDAK");
             scaneBLT();
+        } else {
+            if (bleDevice.connected || bleDevice.connecting || connected) {
+                Log.d("CATATAN","KONEKSI SUKSES");
+                stt_koneksi = true;
+                BleManager.getInstance().notify(bleDevice,
+                        "0000fff0-0000-1000-8000-00805f9b34fb",
+                        "0000fff1-0000-1000-8000-00805f9b34fb", notifyCallback);
+            } else {
+                stt_koneksi = false;
+                Log.d("CATATAN","KONEKSI TIDAK");
+                scaneBLT();
+            }
         }
         sendBroadcast(connected);
     }

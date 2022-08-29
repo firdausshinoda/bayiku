@@ -114,9 +114,11 @@ public class HomeFragment extends Fragment implements TextWatcher, AdapterView.O
         list_posyandu_id.add("2");
         list_posyandu_id.add("3");
 
-        sp_posyandu.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, list_posyandu));
+        sp_posyandu.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item,
+                list_posyandu));
         sp_posyandu.setOnItemSelectedListener(this);
-        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver, new IntentFilter("BcHasil"));
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver,
+                new IntentFilter("BcHasil"));
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {

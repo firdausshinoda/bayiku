@@ -44,6 +44,7 @@ public class WebFragment extends Fragment {
         webSettings.setJavaScriptEnabled(true);
         webView.setWebViewClient(new MyWebViewClient());
     }
+
     class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -55,4 +56,5 @@ public class WebFragment extends Fragment {
             return true;
         }
     }
+
 }

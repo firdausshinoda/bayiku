@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,8 +60,10 @@ public class InformasiFragment extends Fragment {
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Bayiku");
 
-        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver, new IntentFilter("BcKoneksi"));
-        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiverSearch, new IntentFilter("BcSearch"));
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiver,
+                new IntentFilter("BcKoneksi"));
+        LocalBroadcastManager.getInstance(context).registerReceiver(mMessageReceiverSearch,
+                new IntentFilter("BcSearch"));
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -83,12 +86,15 @@ public class InformasiFragment extends Fragment {
     };
 
     private void setSearch() {
+        Log.d("catatan","Loader =>"+stt_loader);
+        Log.d("catatan","Koneksi =>"+stt_koneksi);
         tv_stt_konek.setText(stt_koneksi ? "TERKONEKSI" : "TERPUTUS");
         if (stt_koneksi) {
             btn_cari.setVisibility(View.GONE);
             btn_unbind.setVisibility(View.VISIBLE);
             tv_mac_address.setText(mac_address);
             tv_nama.setText(nama_device);
+            progress_cari.setVisibility(View.GONE);
         } else {
             tv_mac_address.setText("");
             tv_nama.setText("");
